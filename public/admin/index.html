@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learnova LMS - Admin Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: { bg: '#0f172a', card: '#1e293b', border: '#334155', accent: '#f97316' }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes popupAnim {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-popup { animation: popupAnim 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    </style>
+</head>
+<body class="bg-dark-bg text-slate-100 font-sans antialiased min-h-screen flex relative">
+
+    <!-- MODAL POP-UP PASSWORD ADMIN -->
+    <div id="admin-auth-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-dark-card border border-dark-border w-full max-w-sm rounded-2xl p-8 space-y-6 shadow-2xl animate-popup">
+            <div class="text-center space-y-2">
+                <div class="inline-block bg-orange-500 p-3 rounded-2xl text-white shadow-lg shadow-orange-500/30 mb-1">
+                    <i class="fa-solid fa-shield-halved text-2xl"></i>
+                </div>
+                <h3 class="font-bold text-lg">Autentikasi Admin</h3>
+                <p class="text-xs text-slate-400">Masukkan password guru untuk mengakses panel.</p>
+            </div>
+            <form onsubmit="handleAdminAuth(event)" class="space-y-4">
+                <div>
+                    <input type="password" id="admin-password-input" required placeholder="Masukkan Password..." class="w-full bg-dark-bg border border-dark-border rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-orange-500 text-center tracking-widest">
+                </div>
+                <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 rounded-xl text-sm transition shadow-lg shadow-orange-500/20">
+                    Masuk Panel Guru
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 space-y-2 pointer-events-none"></div>
+
+    <!-- SIDEBAR ADMIN -->
+    <aside class="w-64 bg-dark-card border-r border-dark-border flex flex-col justify-between hidden md:flex">
+        <div>
+            <div class="p-6 flex items-center space-x-3 border-b border-dark-border">
+                <div class="bg-orange-500 p-2.5 rounded-xl text-white shadow-lg shadow-orange-500/30">
+                    <i class="fa-solid fa-graduation-cap text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg tracking-wide">Learnova</h1>
+                    <span class="text-xs text-orange-400 font-medium">Admin / Guru Panel</span>
+                </div>
+            </div>
+            <nav class="p-4 space-y-1.5">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium bg-orange-500 text-white shadow-lg shadow-orange-500/20 transition">
+                    <i class="fa-solid fa-chart-pie w-5"></i><span>Dashboard</span>
+                </button>
+                <button onclick="switchTab('students')" id="nav-students" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition">
+                    <i class="fa-solid fa-users w-5"></i><span>Manajemen Siswa</span>
+                </button>
+                <button onclick="switchTab('materials')" id="nav-materials" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition">
+                    <i class="fa-solid fa-book-open w-5"></i><span>Materi & Tugas</span>
+                </button>
+                <button onclick="switchTab('announcement')" id="nav-announcement" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition">
+                    <i class="fa-solid fa-bullhorn w-5"></i><span>Kelola Pengumuman</span>
+                </button>
+                <button onclick="switchTab('grades')" id="nav-grades" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition">
+                    <i class="fa-solid fa-star w-5"></i><span>Rekap Nilai</span>
+                </button>
+                <button onclick="switchTab('attendance')" id="nav-attendance" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition">
+                    <i class="fa-solid fa-clipboard-user w-5"></i><span>Absensi Kelas</span>
+                </button>
+            </nav>
+        </div>
+        <div class="p-4 border-t border-dark-border flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-orange-500/20 text-orange-400 flex items-center font-bold justify-center border border-orange-500/30">AD</div>
+                <div>
+                    <h4 class="text-sm font-semibold">Admin TKJ</h4>
+                    <span class="text-xs text-slate-400">admin@learnova.edu</span>
+                </div>
+            </div>
+            <button onclick="sessionStorage.removeItem('admin_logged'); location.reload();" class="text-slate-400 hover:text-rose-400 transition" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT ADMIN -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+        <header class="bg-dark-card border-b border-dark-border px-8 py-4 flex items-center justify-between sticky top-0 z-20">
+            <div>
+                <h2 id="page-title" class="text-xl font-bold tracking-tight">Admin Dashboard</h2>
+                <p class="text-xs text-slate-400">Selamat datang kembali, Guru/Admin Kelas TKJ!</p>
+            </div>
+        </header>
+        <main class="p-8 space-y-8 flex-1">
+            
+            <!-- TAB DASHBOARD -->
+            <section id="tab-dashboard" class="tab-content space-y-8">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-dark-card border border-dark-border p-6 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Total Siswa</p>
+                            <h3 id="stat-total-siswa" class="text-3xl font-bold mt-1 text-slate-100">0</h3>
+                            <span class="text-xs text-emerald-400 mt-2 inline-block"><i class="fa-solid fa-arrow-up"></i> Siswa Aktif TKJ</span>
+                        </div>
+                        <div class="bg-orange-500/10 text-orange-400 p-4 rounded-xl border border-orange-500/20"><i class="fa-solid fa-users text-xl"></i></div>
+                    </div>
+                    <div class="bg-dark-card border border-dark-border p-6 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Kehadiran Hari Ini</p>
+                            <h3 id="stat-total-hadir" class="text-3xl font-bold mt-1 text-emerald-400">0</h3>
+                            <span class="text-xs text-slate-400 mt-2 inline-block">Sudah check-in</span>
+                        </div>
+                        <div class="bg-emerald-500/10 text-emerald-400 p-4 rounded-xl border border-emerald-500/20"><i class="fa-solid fa-clipboard-user text-xl"></i></div>
+                    </div>
+                    <div class="bg-dark-card border border-dark-border p-6 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Materi & Tugas</p>
+                            <h3 id="stat-total-materi" class="text-3xl font-bold mt-1 text-blue-400">0</h3>
+                            <span class="text-xs text-slate-400 mt-2 inline-block">Modul terpublikasi</span>
+                        </div>
+                        <div class="bg-blue-500/10 text-blue-400 p-4 rounded-xl border border-blue-500/20"><i class="fa-solid fa-book-open text-xl"></i></div>
+                    </div>
+                    <div class="bg-dark-card border border-dark-border p-6 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Rata-rata Nilai</p>
+                            <h3 class="text-3xl font-bold mt-1 text-purple-400">88.5</h3>
+                            <span class="text-xs text-emerald-400 mt-2 inline-block"><i class="fa-solid fa-award"></i> Predikat Baik</span>
+                        </div>
+                        <div class="bg-purple-500/10 text-purple-400 p-4 rounded-xl border border-purple-500/20"><i class="fa-solid fa-star text-xl"></i></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-dark-card border border-dark-border p-6 rounded-2xl space-y-4">
+                        <h3 class="font-bold text-lg text-slate-100 flex items-center">
+                            <i class="fa-solid fa-bolt text-orange-400 mr-2"></i>Aksi Cepat Admin
+                        </h3>
+                        <div class="space-y-2.5 pt-2">
+                            <button onclick="switchTab('students'); openStudentModal();" class="w-full flex items-center justify-between p-3 bg-dark-bg hover:bg-slate-800 border border-dark-border rounded-xl text-sm transition">
+                                <span class="flex items-center text-slate-200"><i class="fa-solid fa-user-plus text-orange-400 w-8"></i>Tambah Siswa Baru</span>
+                                <i class="fa-solid fa-chevron-right text-xs text-slate-500"></i>
+                            </button>
+                            <button onclick="switchTab('materials')" class="w-full flex items-center justify-between p-3 bg-dark-bg hover:bg-slate-800 border border-dark-border rounded-xl text-sm transition">
+                                <span class="flex items-center text-slate-200"><i class="fa-solid fa-cloud-arrow-up text-blue-400 w-8"></i>Publikasikan Tugas/Kuis</span>
+                                <i class="fa-solid fa-chevron-right text-xs text-slate-500"></i>
+                            </button>
+                            <button onclick="switchTab('announcement')" class="w-full flex items-center justify-between p-3 bg-dark-bg hover:bg-slate-800 border border-dark-border rounded-xl text-sm transition">
+                                <span class="flex items-center text-slate-200"><i class="fa-solid fa-bullhorn text-emerald-400 w-8"></i>Kirim Pengumuman</span>
+                                <i class="fa-solid fa-chevron-right text-xs text-slate-500"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bg-dark-card border border-dark-border p-6 rounded-2xl lg:col-span-2 space-y-4">
+                        <h3 class="font-bold text-lg text-slate-100 flex items-center">
+                            <i class="fa-solid fa-circle-info text-blue-400 mr-2"></i>Status Sistem LMS
+                        </h3>
+                        <div class="space-y-3 pt-1">
+                            <div class="p-4 bg-dark-bg rounded-xl border border-dark-border flex items-start space-x-3">
+                                <div class="bg-emerald-500/10 text-emerald-400 p-2 rounded-lg border border-emerald-500/20 mt-0.5"><i class="fa-solid fa-database text-sm"></i></div>
+                                <div>
+                                    <h4 class="text-sm font-semibold text-slate-200">Database Lokal Aktif (database.json)</h4>
+                                    <p class="text-xs text-slate-400 mt-0.5">Semua data tersimpan secara permanen di server lokal.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB MANAJEMEN SISWA -->
+            <section id="tab-students" class="tab-content space-y-6 hidden">
+                <div class="flex justify-between items-center bg-dark-card border border-dark-border p-6 rounded-2xl">
+                    <div>
+                        <h3 class="font-bold text-lg">Daftar Siswa Kelas TKJ</h3>
+                        <p class="text-xs text-slate-400">Pengelolaan data siswa.</p>
+                    </div>
+                    <button onclick="openStudentModal()" class="bg-orange-500 hover:bg-orange-600 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-lg shadow-orange-500/20">
+                        <i class="fa-solid fa-user-plus mr-2"></i>Tambah Siswa
+                    </button>
+                </div>
+                <div class="bg-dark-card border border-dark-border rounded-2xl overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-dark-bg/50 border-b border-dark-border text-xs text-slate-400 uppercase tracking-wider">
+                                <th class="p-4 font-semibold">Nama Siswa</th>
+                                <th class="p-4 font-semibold">NISN</th>
+                                <th class="p-4 font-semibold">Email</th>
+                                <th class="p-4 font-semibold">Status</th>
+                                <th class="p-4 font-semibold text-right">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="student-table-body" class="divide-y divide-dark-border text-sm"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TAB MATERI & TUGAS -->
+            <section id="tab-materials" class="tab-content space-y-6 hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-dark-card border border-dark-border p-6 rounded-2xl">
+                        <h3 class="font-bold text-lg mb-1">Publikasi Materi / Kuis / Ujian</h3>
+                        <p class="text-xs text-slate-400 mb-6">Bagikan modul, kuis, atau ujian lengkap dengan deadline.</p>
+                        
+                        <form id="material-form" onsubmit="addMaterial(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1">Judul</label>
+                                <input type="text" id="mat-title" required placeholder="Misal: Kuis Jaringan 1" class="w-full bg-dark-bg border border-dark-border rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-orange-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1">Kategori</label>
+                                <select id="mat-category" class="w-full bg-dark-bg border border-dark-border rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-orange-500">
+                                    <option value="Materi Pembelajaran">Materi Pembelajaran</option>
+                                    <option value="Tugas Praktikum">Tugas Praktikum</option>
+                                    <option value="Kuis">Kuis</option>
+                                    <option value="Ujian">Ujian</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1">Deskripsi / Instruksi</label>
+                                <textarea id="mat-desc" rows="3" required placeholder="Tulis instruksi..." class="w-full bg-dark-bg border border-dark-border rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-orange-500"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1">Batas Waktu (Deadline)</label>
+                                <input type="datetime-local" id="mat-deadline" required class="w-full bg-dark-bg border border-dark-border rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-orange-500">
+                            </div>
+                            <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2.5 rounded-xl text-sm transition shadow-lg shadow-orange-500/20">
+                                Publikasikan
+                            </button>
+                        </form>
+                    </div>
+                    <div class="bg-dark-card border border-dark-border p-6 rounded-2xl lg:col-span-2">
+                        <h3 class="font-bold text-lg mb-4">Daftar Konten Terpublikasi</h3>
+                        <div id="material-list" class="space-y-4"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB KELOLA PENGUMUMAN -->
+            <section id="tab-announcement" class="tab-content space-y-6 hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-dark-card border border-dark-border p-6 rounded-2xl">
+                        <h3 class="font-bold text-lg mb-1">Buat Pengumuman Kelas</h3>
+                        <p class="text-xs text-slate-400 mb-6">Pesan ini langsung muncul di dashboard siswa.</p>
+                        
+                        <form id="announcement-form" onsubmit="postAnnouncement(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1">Judul Pengumuman</label>
+                                <input type="text" id="ann-title" required placeholder="Misal: Jadwal Ujian" class="w-full bg-dark-bg border border-dark-border rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-orange-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1">Isi Pesan</label>
+                                <textarea id="ann-content" rows="4" required placeholder="Tulis pengumuman..." class="w-full bg-dark-bg border border-dark-border rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-orange-500"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2.5 rounded-xl text-sm transition shadow-lg shadow-orange-500/20">
+                                Kirim Pengumuman
+                            </button>
+                        </form>
+                    </div>
+                    <div class="bg-dark-card border border-dark-border p-6 rounded-2xl lg:col-span-2 space-y-4">
+                        <h3 class="font-bold text-lg">Riwayat Pengumuman Aktif</h3>
+                        <div id="admin-announcement-list" class="space-y-3"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB REKAP NILAI -->
+            <section id="tab-grades" class="tab-content space-y-6 hidden">
+                <div class="bg-dark-card border border-dark-border p-6 rounded-2xl">
+                    <h3 class="font-bold text-lg mb-4">Transkrip & Rekap Nilai Siswa (Tugas, Kuis, Ujian)</h3>
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-dark-bg/50 border-b border-dark-border text-xs text-slate-400 uppercase tracking-wider">
+                                <th class="p-4 font-semibold">Nama Siswa</th>
+                                <th class="p-4 font-semibold">Tugas</th>
+                                <th class="p-4 font-semibold">Kuis</th>
+                                <th class="p-4 font-semibold">Ujian</th>
+                            </tr>
+                        </thead>
+                        <tbody id="grade-table-body" class="divide-y divide-dark-border"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TAB ABSENSI -->
+            <section id="tab-attendance" class="tab-content space-y-6 hidden">
+                <div class="bg-dark-card border border-dark-border p-6 rounded-2xl">
+                    <h3 class="font-bold text-lg mb-4">Rekap Kehadiran Siswa</h3>
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-dark-bg/50 border-b border-dark-border text-xs text-slate-400 uppercase tracking-wider">
+                                <th class="p-4 font-semibold">Nama Siswa</th>
+                                <th class="p-4 font-semibold">Status Kehadiran</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendance-table-body" class="divide-y divide-dark-border"></tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAL TAMBAH SISWA -->
+    <div id="student-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-dark-card border border-dark-border w-full max-w-md rounded-2xl p-6 space-y-6 shadow-2xl animate-popup">
+            <div class="flex justify-between items-center border-b border-dark-border pb-4">
+                <h3 class="font-bold text-lg text-slate-100"><i class="fa-solid fa-user-plus text-orange-400 mr-2"></i>Tambah Siswa Baru</h3>
+                <button onclick="closeStudentModal()" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="add-student-form" onsubmit="handleSaveStudent(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Nama Lengkap</label>
+                    <input type="text" id="modal-student-name" required placeholder="Contoh: Budi" class="w-full bg-dark-bg border border-dark-border rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-orange-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">NISN</label>
+                    <input type="text" id="modal-student-nisn" required placeholder="Contoh: 11223344" class="w-full bg-dark-bg border border-dark-border rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-orange-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Email</label>
+                    <input type="email" id="modal-student-email" required placeholder="budi@student.edu" class="w-full bg-dark-bg border border-dark-border rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-orange-500">
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-dark-border">
+                    <button type="button" onclick="closeStudentModal()" class="px-4 py-2 bg-dark-bg text-slate-300 rounded-xl text-sm border border-dark-border">Batal</button>
+                    <button type="submit" class="px-5 py-2 bg-orange-500 text-white rounded-xl text-sm font-medium shadow-lg shadow-orange-500/20">Simpan Siswa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL EDIT SISWA -->
+    <div id="edit-student-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-dark-card border border-dark-border w-full max-w-md rounded-2xl p-6 space-y-6 shadow-2xl animate-popup">
+            <div class="flex justify-between items-center border-b border-dark-border pb-4">
+                <h3 class="font-bold text-lg text-slate-100"><i class="fa-solid fa-user-pen text-orange-400 mr-2"></i>Edit Data Siswa</h3>
+                <button onclick="closeEditStudentModal()" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="edit-student-form" onsubmit="handleUpdateStudent(event)" class="space-y-4">
+                <input type="hidden" id="edit-student-id">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Nama Lengkap</label>
+                    <input type="text" id="edit-student-name" required class="w-full bg-dark-bg border border-dark-border rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-orange-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">NISN</label>
+                    <input type="text" id="edit-student-nisn" required class="w-full bg-dark-bg border border-dark-border rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-orange-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Email</label>
+                    <input type="email" id="edit-student-email" required class="w-full bg-dark-bg border border-dark-border rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-orange-500">
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-dark-border">
+                    <button type="button" onclick="closeEditStudentModal()" class="px-4 py-2 bg-dark-bg text-slate-300 rounded-xl text-sm border border-dark-border">Batal</button>
+                    <button type="submit" class="px-5 py-2 bg-orange-500 text-white rounded-xl text-sm font-medium shadow-lg shadow-orange-500/20">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

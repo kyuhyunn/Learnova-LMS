@@ -1,0 +1,146 @@
+{
+  "students": [
+    {
+      "id": 1,
+      "name": "Fadhli",
+      "nisn": "0107695680",
+      "email": "muamad.fadhli@gmail.com",
+      "status": "Aktif",
+      "tugas": 90,
+      "kuis": 85,
+      "ujian": 88,
+      "attendance": "Hadir"
+    },
+    {
+      "id": 2,
+      "name": "Radit",
+      "nisn": "12345678",
+      "email": "radit@gmail.com",
+      "status": "Aktif",
+      "tugas": 90,
+      "kuis": 0,
+      "ujian": 0,
+      "attendance": "Belum Absen"
+    },
+    {
+      "id": 3,
+      "name": "Fajar",
+      "nisn": "11223344",
+      "email": "fajar@gmail.com",
+      "status": "Aktif",
+      "tugas": 90,
+      "kuis": 85,
+      "ujian": 88,
+      "attendance": "Hadir"
+    },
+    {
+      "id": 4,
+      "name": "Ervan",
+      "nisn": "00112233",
+      "email": "ervan@gmail.com",
+      "status": "Aktif",
+      "tugas": 0,
+      "kuis": 0,
+      "ujian": 0,
+      "attendance": "Hadir"
+    },
+    {
+      "id": 5,
+      "name": "Talyssa",
+      "nisn": "11111111",
+      "email": "yisa@gmail.com",
+      "status": "Aktif",
+      "tugas": 90,
+      "kuis": 85,
+      "ujian": 88,
+      "attendance": "Hadir"
+    },
+    {
+      "id": 6,
+      "name": "Irsyad",
+      "nisn": "22222222",
+      "email": "irsyad@gmail.com",
+      "status": "Aktif",
+      "tugas": 90,
+      "kuis": 85,
+      "ujian": 88,
+      "attendance": "Hadir"
+    },
+    {
+      "id": 7,
+      "name": "Widya",
+      "nisn": "33333333",
+      "email": "widya@gmail.com",
+      "status": "Aktif",
+      "tugas": 0,
+      "kuis": 0,
+      "ujian": 0,
+      "attendance": "Belum Absen"
+    },
+    {
+      "id": 8,
+      "name": "Salsa",
+      "nisn": "44444444",
+      "email": "salsa@gmail.com",
+      "status": "Aktif",
+      "tugas": 0,
+      "kuis": 0,
+      "ujian": 0,
+      "attendance": "Belum Absen"
+    }
+  ],
+  "materials": [
+    {
+      "id": 1,
+      "title": "Modul Cisco Packet Tracer Dasar",
+      "category": "Materi Pembelajaran",
+      "desc": "Panduan perancangan topologi dasar.",
+      "deadline": "2026-12-31T23:59"
+    },
+    {
+      "id": 2,
+      "title": "Topologi Jaringan LAN",
+      "category": "Tugas Praktikum",
+      "desc": "Buat topologi star network di cisco.",
+      "deadline": "2026-12-31T23:59"
+    },
+    {
+      "id": 3,
+      "title": "Kuis Jaringan Komputer 1",
+      "category": "Kuis",
+      "desc": "Jawab pertanyaan seputar OSI Layer & IP Addressing.",
+      "deadline": "2026-12-31T23:59"
+    },
+    {
+      "id": 4,
+      "title": "Ujian Tengah Semester TKJ",
+      "category": "Ujian",
+      "desc": "Soal ujian praktik dan teori jaringan komputer.",
+      "deadline": "2026-12-31T23:59"
+    }
+  ],
+  "announcements": [
+    {
+      "id": 1,
+      "title": "Pengumuman Kelas TKJ",
+      "content": "Silakan kerjakan modul praktikum jaringan tepat waktu.",
+      "date": "Hari ini"
+    }
+  ],
+  "assignments": [
+    {
+      "id": 1,
+      "title": "Laporan Praktikum IP Static",
+      "deadline": "Besok, 23:59 WIB",
+      "status": "Pending"
+    }
+  ],
+  "forum": [
+    {
+      "id": 1,
+      "author": "Admin Guru",
+      "time": "2 jam lalu",
+      "content": "Selamat pagi anak-anak, silakan kumpulkan tugas tepat waktu."
+    }
+  ]
+}

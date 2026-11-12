@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learnova LMS - Portal Siswa</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: { bg: '#0f172a', card: '#1e293b', border: '#334155', accent: '#f97316' }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes popupAnim {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-popup { animation: popupAnim 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    </style>
+</head>
+<body class="bg-dark-bg text-slate-100 font-sans antialiased min-h-screen flex relative">
+
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 space-y-2 pointer-events-none"></div>
+
+    <!-- LOGIN MODAL SISWA -->
+    <div id="login-container" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-dark-card border border-dark-border w-full max-w-md rounded-2xl p-8 space-y-6 shadow-2xl animate-popup">
+            <div class="text-center space-y-2">
+                <div class="inline-block bg-orange-500 p-3 rounded-2xl text-white shadow-lg shadow-orange-500/30 mb-1">
+                    <i class="fa-solid fa-graduation-cap text-2xl"></i>
+                </div>
+                <h3 class="font-bold text-xl">Login Portal Siswa</h3>
+                <p class="text-xs text-slate-400">Masukkan NISN terdaftar untuk masuk ke kelas TKJ.</p>
+            </div>
+            <form onsubmit="handleStudentLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Nomor Induk Siswa Nasional (NISN)</label>
+                    <input type="text" id="login-nisn" required placeholder="Contoh: 0107695680" class="w-full bg-dark-bg border border-dark-border rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-orange-500">
+                </div>
+                <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 rounded-xl text-sm transition shadow-lg shadow-orange-500/20">
+                    Masuk Kelas
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- SIDEBAR SISWA -->
+    <aside class="w-64 bg-dark-card border-r border-dark-border flex flex-col justify-between hidden md:flex">
+        <div>
+            <div class="p-6 flex items-center space-x-3 border-b border-dark-border">
+                <div class="bg-orange-500 p-2.5 rounded-xl text-white shadow-lg shadow-orange-500/30">
+                    <i class="fa-solid fa-graduation-cap text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg tracking-wide">Learnova</h1>
+                    <span class="text-xs text-orange-400 font-medium">Portal Siswa TKJ</span>
+                </div>
+            </div>
+            <nav class="p-4 space-y-1.5">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium bg-orange-500 text-white shadow-lg shadow-orange-500/20 transition">
+                    <i class="fa-solid fa-chart-pie w-5"></i><span>Dashboard</span>
+                </button>
+                <button onclick="switchTab('materials')" id="nav-materials" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition">
+                    <i class="fa-solid fa-book-open w-5"></i><span>Materi & Tugas</span>
+                </button>
+                <button onclick="switchTab('quiz')" id="nav-quiz" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition">
+                    <i class="fa-solid fa-question-circle w-5"></i><span>Kuis</span>
+                </button>
+                <button onclick="switchTab('exam')" id="nav-exam" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition">
+                    <i class="fa-solid fa-file-pen w-5"></i><span>Ujian</span>
+                </button>
+                <button onclick="switchTab('attendance')" id="nav-attendance" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition">
+                    <i class="fa-solid fa-clipboard-user w-5"></i><span>Absensi Kelas</span>
+                </button>
+            </nav>
+        </div>
+        <div class="p-4 border-t border-dark-border flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div id="user-avatar-initials" class="w-10 h-10 rounded-full bg-orange-500/20 text-orange-400 flex items-center font-bold justify-center border border-orange-500/30">FD</div>
+                <div>
+                    <h4 id="student-name-sidebar" class="text-sm font-semibold">Siswa TKJ</h4>
+                    <span id="student-nisn-sidebar" class="text-xs text-slate-400">NISN: -</span>
+                </div>
+            </div>
+            <button onclick="logoutStudent()" class="text-slate-400 hover:text-rose-400 transition" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT SISWA -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+        <header class="bg-dark-card border-b border-dark-border px-8 py-4 flex items-center justify-between sticky top-0 z-20">
+            <div>
+                <h2 id="page-title" class="text-xl font-bold tracking-tight">Dashboard Siswa</h2>
+                <p class="text-xs text-slate-400">Selamat datang kembali di Portal Pembelajaran Learnova!</p>
+            </div>
+            <div>
+                <button onclick="doAttendance()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-semibold transition shadow-md flex items-center space-x-2">
+                    <i class="fa-solid fa-check-to-slot"></i><span>Check-in Hadir</span>
+                </button>
+            </div>
+        </header>
+
+        <main class="p-8 space-y-8 flex-1">
+            <!-- TAB DASHBOARD -->
+            <section id="tab-dashboard" class="tab-content space-y-8">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-dark-card border border-dark-border p-6 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-slate-400 font-medium">Status Kehadiran</p>
+                            <h3 id="stat-attendance-status" class="text-2xl font-bold mt-1 text-emerald-400">Hadir</h3>
+                            <span class="text-xs text-slate-400 mt-2 inline-block">Terakhir absen hari ini</span>
+                        </div>
+                        <div class="bg-emerald-600/10 text-emerald-400 p-4 rounded-xl border border-emerald-500/20"><i class="fa-solid fa-clipboard-user text-xl"></i></div>
+                    </div>
+                    <div class="bg-dark-card border border-dark-border p-6 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-slate-400 font-medium">Progress Tugas</p>
+                            <h3 class="text-2xl font-bold mt-1">Aktif</h3>
+                            <span class="text-xs text-orange-400 font-medium mt-2 inline-block">Semangat belajar!</span>
+                        </div>
+                        <div class="bg-orange-500/10 text-orange-400 p-4 rounded-xl border border-orange-500/20"><i class="fa-solid fa-book-open text-xl"></i></div>
+                    </div>
+                    <div class="bg-dark-card border border-dark-border p-6 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-slate-400 font-medium">Predikat</p>
+                            <h3 class="text-2xl font-bold mt-1">Baik</h3>
+                            <span class="text-xs text-emerald-400 font-medium mt-2 inline-block"><i class="fa-solid fa-star"></i> Kelas TKJ</span>
+                        </div>
+                        <div class="bg-purple-600/10 text-purple-400 p-4 rounded-xl border border-purple-500/20"><i class="fa-solid fa-award text-xl"></i></div>
+                    </div>
+                </div>
+
+                <!-- Pengumuman Guru -->
+                <div class="bg-dark-card border border-dark-border p-6 rounded-2xl">
+                    <h3 class="font-bold text-lg mb-2">Pengumuman Terbaru Guru</h3>
+                    <p class="text-xs text-slate-400 mb-4">Informasi penting dari Admin / Guru Pengampu Kelas TKJ.</p>
+                    <div id="student-announcements" class="space-y-3"></div>
+                </div>
+            </section>
+
+            <!-- TAB MATERI & TUGAS -->
+            <section id="tab-materials" class="tab-content space-y-6 hidden">
+                <div class="bg-dark-card border border-dark-border p-6 rounded-2xl space-y-4">
+                    <div>
+                        <h3 class="font-bold text-lg">Materi & Tugas Pembelajaran</h3>
+                        <p class="text-xs text-slate-400">Modul dan tugas praktikum.</p>
+                    </div>
+                    <div id="student-material-list" class="space-y-4"></div>
+                </div>
+            </section>
+
+            <!-- TAB KUIS -->
+            <section id="tab-quiz" class="tab-content space-y-6 hidden">
+                <div class="bg-dark-card border border-dark-border p-6 rounded-2xl space-y-4">
+                    <div>
+                        <h3 class="font-bold text-lg">Daftar Kuis</h3>
+                        <p class="text-xs text-slate-400">Kerjakan kuis pilihan ganda / esai.</p>
+                    </div>
+                    <div id="student-quiz-list" class="space-y-4"></div>
+                </div>
+            </section>
+
+            <!-- TAB UJIAN -->
+            <section id="tab-exam" class="tab-content space-y-6 hidden">
+                <div class="bg-dark-card border border-dark-border p-6 rounded-2xl space-y-4">
+                    <div>
+                        <h3 class="font-bold text-lg">Daftar Ujian</h3>
+                        <p class="text-xs text-slate-400">Soal ujian akhir / tengah semester.</p>
+                    </div>
+                    <div id="student-exam-list" class="space-y-4"></div>
+                </div>
+            </section>
+
+            <!-- TAB ABSENSI -->
+            <section id="tab-attendance" class="tab-content space-y-6 hidden">
+                <div class="bg-dark-card border border-dark-border p-6 rounded-2xl space-y-6">
+                    <div>
+                        <h3 class="font-bold text-lg">Rekap Kehadiran Anda</h3>
+                        <p class="text-xs text-slate-400">Catatan kehadiran harian di kelas TKJ.</p>
+                    </div>
+                    <div class="p-4 bg-dark-bg rounded-xl border border-dark-border flex justify-between items-center">
+                        <div>
+                            <h4 class="font-semibold text-sm">Status Kehadiran Hari Ini</h4>
+                            <p class="text-xs text-slate-400 mt-0.5">Jangan lupa melakukan check-in.</p>
+                        </div>
+                        <button onclick="doAttendance()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-medium transition shadow-md">
+                            Check-in Sekarang
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
