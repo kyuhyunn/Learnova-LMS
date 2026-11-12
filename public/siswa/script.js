@@ -49,7 +49,7 @@ function updateStudentUI() {
     }
 }
 
-// Load Data Materi, Kuis, Ujian, & Pengumuman
+// Load Data Materi, Kuis, Ujian, & Pengumuman + Sinkronisasi Data Siswa Terbaru
 async function loadStudentData() {
     if (!currentStudent) return;
 
@@ -57,6 +57,14 @@ async function loadStudentData() {
         const response = await fetch('/api/data');
         const data = await response.json();
         
+        // SINKRONISASI OTOMATIS: Perbarui status siswa dari database server (misal setelah di-reset admin)
+        const latestStudent = data.students.find(s => s.id === currentStudent.id);
+        if (latestStudent) {
+            currentStudent = latestStudent;
+            localStorage.setItem('student_session', JSON.stringify(currentStudent));
+            updateStudentUI();
+        }
+
         const materialContainer = document.getElementById('student-material-list');
         const quizContainer = document.getElementById('student-quiz-list');
         const examContainer = document.getElementById('student-exam-list');
