@@ -293,6 +293,26 @@ async function deleteStudent(id) {
     }
 }
 
+// Fungsi Reset Absensi (Fitur Baru)
+async function resetAttendance() {
+    if (!confirm('Apakah kamu yakin ingin mereset status absensi semua siswa menjadi "Belum Absen"?')) return;
+
+    try {
+        const response = await fetch('/api/admin/reset-attendance', {
+            method: 'POST'
+        });
+        const result = await response.json();
+        if (result.success) {
+            showToast('Absensi berhasil di-reset untuk hari baru!');
+            fetchServerData();
+        } else {
+            showToast('Gagal mereset absensi', 'error');
+        }
+    } catch (err) {
+        showToast('Gagal terhubung ke server', 'error');
+    }
+}
+
 async function handleAdminAuth(event) {
     event.preventDefault();
     const password = document.getElementById('admin-password-input').value;
@@ -346,13 +366,12 @@ function showToast(message, type = 'success') {
     setTimeout(() => toast.remove(), 3000);
 }
 
-// Perbaikan pada window.onload di sini:
 window.onload = () => {
     const isAuth = sessionStorage.getItem('admin_logged');
     if (!isAuth) {
         const authModal = document.getElementById('admin-auth-modal');
-        if (authModal) authModal.classList.remove('hidden'); // Menampilkan modal login jika belum auth
+        if (authModal) authModal.classList.remove('hidden');
     } else {
-        fetchServerData(); // Mengambil data server jika sudah login
+        fetchServerData();
     }
 };

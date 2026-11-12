@@ -297,8 +297,17 @@
 
             <!-- TAB ABSENSI -->
             <section id="tab-attendance" class="tab-content space-y-6 hidden">
-                <div class="bg-dark-card border border-dark-border p-6 rounded-2xl">
-                    <h3 class="font-bold text-lg mb-4">Rekap Kehadiran Siswa</h3>
+                <div class="bg-dark-card border border-dark-border p-6 rounded-2xl space-y-4">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="font-bold text-lg">Rekap Kehadiran Siswa</h3>
+                            <p class="text-xs text-slate-400">Pantau kehadiran harian siswa.</p>
+                        </div>
+                        <button onclick="resetAttendance()" class="px-4 py-2 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-xl text-xs font-medium hover:bg-amber-500/20 transition flex items-center space-x-2">
+                            <i class="fa-solid fa-rotate-right"></i>
+                            <span>Reset Absensi Hari Ini</span>
+                        </button>
+                    </div>
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
                             <tr class="bg-dark-bg/50 border-b border-dark-border text-xs text-slate-400 uppercase tracking-wider">

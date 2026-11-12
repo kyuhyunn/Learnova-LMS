@@ -207,7 +207,16 @@ app.post('/api/siswa/attendance', (req, res) => {
     }
 });
 
-// 12. API: Siswa Kumpul Tugas / Kuis / Ujian dengan Validasi Deadline
+// 12. API: Reset Absensi Semua Siswa (Fitur Baru)
+app.post('/api/admin/reset-attendance', (req, res) => {
+    dbData.students.forEach(s => {
+        s.attendance = 'Belum Absen';
+    });
+    saveDB();
+    res.json({ success: true, message: 'Absensi berhasil di-reset!', students: dbData.students });
+});
+
+// 13. API: Siswa Kumpul Tugas / Kuis / Ujian dengan Validasi Deadline
 app.post('/api/siswa/submit-task', (req, res) => {
     const { studentId, materialId } = req.body;
     const student = dbData.students.find(s => s.id === Number(studentId));
