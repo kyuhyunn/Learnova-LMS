@@ -346,11 +346,13 @@ function showToast(message, type = 'success') {
     setTimeout(() => toast.remove(), 3000);
 }
 
+// Perbaikan pada window.onload di sini:
 window.onload = () => {
     const isAuth = sessionStorage.getItem('admin_logged');
     if (!isAuth) {
-        document.getElementById('admin-auth-modal').classList.add('hidden');
+        const authModal = document.getElementById('admin-auth-modal');
+        if (authModal) authModal.classList.remove('hidden'); // Menampilkan modal login jika belum auth
     } else {
-        fetchServerData();
+        fetchServerData(); // Mengambil data server jika sudah login
     }
 };
