@@ -1,181 +1,61 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Kelas Siswa - Learnova Smart Classroom</title>
+    <title>Learnova LMS - Portal Siswa</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: { bg: '#0f172a', card: '#1e293b', border: '#334155', accent: '#f97316' }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --bg-color: #0d1117;
-            --card-bg: #161b22;
-            --text-color: #c9d1d9;
-            --accent-color: #f97316;
-            --accent-hover: #ea580c;
-            --border-color: #30363d;
+        @keyframes popupAnim {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
         }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            margin-bottom: 20px;
-        }
-
-        .header h2 {
-            margin: 0;
-            color: #ffffff;
-        }
-
-        .btn-logout {
-            background-color: #da3633;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: 0.2s;
-        }
-
-        .btn-logout:hover {
-            background-color: #b31d18;
-        }
-
-        .card {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            margin-bottom: 20px;
-        }
-
-        .card h3 {
-            margin-top: 0;
-            color: var(--accent-color);
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 14px;
-        }
-
-        th {
-            color: #8b949e;
-            background-color: #0d1117;
-        }
-
-        .btn-action {
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 13px;
-        }
-
-        .btn-action:hover {
-            background-color: var(--accent-hover);
-        }
+        .animate-popup { animation: popupAnim 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     </style>
 </head>
-<body>
+<body class="bg-dark-bg text-slate-100 font-sans antialiased min-h-screen flex relative overflow-hidden">
 
-    <div class="container">
-        <!-- Header Info Siswa & Logout -->
-        <div class="header">
-            <div>
-                <h2>Selamat Datang, <span id="studentName">Siswa</span>!</h2>
-                <p style="margin: 5px 0 0 0; color: #8b949e; font-size: 14px;">
-                    NISN: <span id="studentNisn">-</span> | Kelas TKJ - Learnova Smart Classroom
-                </p>
+    <!-- MODAL LOGIN SISWA (BERDASARKAN NISN) -->
+    <div id="login-container" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-dark-card border border-dark-border w-full max-w-sm rounded-3xl p-8 space-y-6 shadow-2xl animate-popup text-center">
+            <div class="inline-block bg-orange-500 p-3.5 rounded-2xl text-white shadow-lg shadow-orange-500/30 mb-1">
+                <i class="fa-solid fa-user-graduate text-2xl"></i>
             </div>
-            <button onclick="handleLogout()" class="btn-logout">Keluar (Logout)</button>
-        </div>
-
-        <!-- Bagian Menu Utama / Materi & Tugas -->
-        <div class="card">
-            <h3>Materi & Tugas Pembelajaran</h3>
-            <p>Silakan pilih materi atau kumpulkan tugas harian kamu melalui daftar di bawah ini.</p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Mata Pelajaran / Topik</th>
-                        <th>Keterangan</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Administrasi Infrastruktur Jaringan (AIJ)</td>
-                        <td>Konfigurasi VLAN & Routing Dasar</td>
-                        <td><button class="btn-action" onclick="alert('Materi dibuka!')">Buka Materi</button></td>
-                    </tr>
-                    <tr>
-                        <td>Teknologi Layanan Jaringan (TLJ)</td>
-                        <td>VoIP Softswitch & SIP Protocol</td>
-                        <td><button class="btn-action" onclick="alert('Materi dibuka!')">Buka Materi</button></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Bagian Absensi Interaktif -->
-        <div class="card">
-            <h3>Absensi Kehadiran Kelas</h3>
-            <p>Status kehadiran kamu hari ini:</p>
-            <button class="btn-action" onclick="alert('Absensi berhasil dikirim!')">Kirim Kehadiran (Hadir)</button>
+            <div class="space-y-1">
+                <h3 class="font-bold text-xl text-slate-100">Portal Siswa TKJ</h3>
+                <p class="text-xs text-slate-400">Silakan masukkan NISN kamu untuk masuk ke kelas.</p>
+            </div>
+            <form onsubmit="handleStudentLogin(event)" class="space-y-4 text-left">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Nomor Induk Siswa Nasional (NISN)</label>
+                    <input type="text" id="login-nisn" required placeholder="Contoh: 0107695680" class="w-full bg-dark-bg border border-dark-border rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-orange-500 text-center tracking-wider font-semibold">
+                </div>
+                <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 rounded-xl text-sm transition shadow-lg shadow-orange-500/20">
+                    Masuk ke Kelas
+                </button>
+            </form>
         </div>
     </div>
 
-    <script>
-        // Cek sesi login saat halaman dibuka
-        window.addEventListener('DOMContentLoaded', () => {
-            const session = localStorage.getItem('studentSession');
-            if (!session) {
-                // Jika belum login, lempar kembali ke halaman utama index.html (login/register)
-                window.location.href = 'index.html';
-                return;
-            }
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 space-y-2 pointer-events-none"></div>
 
-            // Tampilkan data siswa di dashboard
-            const student = JSON.parse(session);
-            document.getElementById('studentName').textContent = student.name;
-            document.getElementById('studentNisn').textContent = student.nisn;
-        });
-
-        // Fungsi Logout
-        function handleLogout() {
-            localStorage.removeItem('studentSession');
-            window.location.href = 'index.html';
-        }
-    </script>
-</body>
-</html>
+    <!-- SIDEBAR SISWA -->
+    <aside class="w-64 bg-dark-card border-r border-dark-border flex flex-col justify-between hidden md:flex z-10">
+        <div>
+            <div class="p-6 flex items-center space-x-3 border-b border-dark-border">
+                <div class
