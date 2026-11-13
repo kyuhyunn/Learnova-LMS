@@ -1,217 +1,264 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Siswa - Learnova Smart Classroom</title>
-    <style>
-        :root {
-            --bg-color: #0d1117;
-            --card-bg: rgba(22, 27, 34, 0.9);
-            --text-color: #c9d1d9;
-            --accent-color: #f97316;
-            --accent-hover: #ea580c;
-            --border-color: #30363d;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            background-image: radial-gradient(circle at 50% 20%, #1f2937 0%, var(--bg-color) 70%);
-            color: var(--text-color);
-            height: 100vh;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .auth-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--border-color);
-            padding: 30px;
-            border-radius: 12px;
-            width: 100%;
-            max-width: 420px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
-        }
-        .auth-card h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #ffffff;
-        }
-        .tab-menu {
-            display: flex;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
-        }
-        .tab-btn {
-            flex: 1;
-            background: none;
-            border: none;
-            color: var(--text-color);
-            padding: 10px;
-            cursor: pointer;
-            font-size: 15px;
-            font-weight: 600;
-            transition: 0.3s;
-        }
-        .tab-btn.active {
-            color: var(--accent-color);
-            border-bottom: 2px solid var(--accent-color);
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 14px;
-            color: #8b949e;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 10px 12px;
-            background: #0d1117;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            color: #ffffff;
-            font-size: 14px;
-            box-sizing: border-box;
-        }
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--accent-color);
-        }
-        .btn-submit {
-            width: 100%;
-            padding: 11px;
-            background-color: var(--accent-color);
-            color: #ffffff;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-            margin-top: 10px;
-        }
-        .btn-submit:hover {
-            background-color: var(--accent-hover);
-        }
-        .form-section { display: none; }
-        .form-section.active { display: block; }
-        .alert-msg {
-            margin-top: 15px;
-            font-size: 13px;
-            text-align: center;
-            padding: 8px;
-            border-radius: 4px;
-            display: none;
-        }
-        .alert-success { background: rgba(46, 160, 67, 0.15); color: #3fb950; border: 1px solid #2ea043; }
-        .alert-error { background: rgba(248, 81, 73, 0.15); color: #f85149; border: 1px solid #da3633; }
-    </style>
-</head>
-<body>
-    <div class="auth-card">
-        <h2>Learnova Portal Siswa</h2>
-        <div class="tab-menu">
-            <button class="tab-btn active" onclick="switchTab('login')">Masuk (Login)</button>
-            <button class="tab-btn" onclick="switchTab('register')">Daftar Akun</button>
-        </div>
-
-        <!-- FORM LOGIN -->
-        <div id="loginSection" class="form-section active">
-            <form id="loginForm">
-                <div class="form-group">
-                    <label>Nomor Induk Siswa Nasional (NISN)</label>
-                    <input type="text" id="loginNisn" required placeholder="Contoh: 0107695680">
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="loginPassword" required placeholder="Masukkan password kamu">
-                </div>
-                <button type="submit" class="btn-submit">Masuk Kelas</button>
-            </form>
-        </div>
-
-        <!-- FORM REGISTER -->
-        <div id="registerSection" class="form-section">
-            <form id="registerForm">
-                <div class="form-group">
-                    <label>Nama Lengkap</label>
-                    <input type="text" id="regName" required placeholder="Masukkan nama lengkap">
-                </div>
-                <div class="form-group">
-                    <label>Nomor Induk Siswa Nasional (NISN)</label>
-                    <input type="text" id="regNisn" required placeholder="Buat NISN kamu">
-                </div>
-                <div class="form-group">
-                    <label>Email Aktif</label>
-                    <input type="email" id="regEmail" required placeholder="email@gmail.com">
-                </div>
-                <div class="form-group">
-                    <label>Buat Password Baru</label>
-                    <input type="password" id="regPassword" required placeholder="Buat password rahasia">
-                </div>
-                <button type="submit" class="btn-submit">Daftar Sekarang</button>
-            </form>
-        </div>
-
-        <div id="alertBox" class="alert-msg"></div>
-    </div>
-
+    <title>Learnova LMS - Portal Siswa</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        function switchTab(tab) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.form-section').forEach(sec => sec.classList.remove('active'));
-            document.getElementById('alertBox').style.display = 'none';
-            if (tab === 'login') {
-                document.querySelectorAll('.tab-btn')[0].classList.add('active');
-                document.getElementById('loginSection').classList.add('active');
-            } else {
-                document.querySelectorAll('.tab-btn')[1].classList.add('active');
-                document.getElementById('registerSection').classList.add('active');
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: { bg: '#0f172a', card: '#1e293b', border: '#334155', accent: '#f97316' }
+                    }
+                }
             }
         }
-
-        function showAlert(message, type) {
-            const alertBox = document.getElementById('alertBox');
-            alertBox.textContent = message;
-            alertBox.className = `alert-msg alert-${type}`;
-            alertBox.style.display = 'block';
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes popupAnim {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
         }
+        .animate-popup { animation: popupAnim 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    </style>
+</head>
+<body class="bg-dark-bg text-slate-100 font-sans antialiased min-h-screen flex relative overflow-hidden">
 
-        // Register Handler
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const name = document.getElementById('regName').value;
-            const nisn = document.getElementById('regNisn').value;
-            const email = document.getElementById('regEmail').value;
-            const password = document.getElementById('regPassword').value;
+    <!-- MODAL AUTH (LOGIN & REGISTER) - Muncul jika belum login -->
+    <div id="login-container" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-dark-card border border-dark-border w-full max-w-sm rounded-3xl p-8 space-y-6 shadow-2xl animate-popup text-center">
+            <div class="inline-block bg-orange-500 p-3.5 rounded-2xl text-white shadow-lg shadow-orange-500/30 mb-1">
+                <i class="fa-solid fa-user-graduate text-2xl"></i>
+            </div>
+            
+            <!-- Tab Pilihan Masuk / Daftar -->
+            <div class="flex border-b border-dark-border mb-2">
+                <button onclick="switchAuthTab('login')" id="tab-btn-login" class="flex-1 pb-2 font-bold text-sm text-orange-500 border-b-2 border-orange-500">Masuk</button>
+                <button onclick="switchAuthTab('register')" id="tab-btn-register" class="flex-1 pb-2 font-semibold text-sm text-slate-400">Daftar Akun</button>
+            </div>
 
-            try {
-                const res = await fetch('/api/siswa/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, nisn, email, password })
-                });
-                const result = await res.json();
-                if (result.success) {
-                    showAlert(result.message, 'success');
-                    setTimeout(() => switchTab('login'), 1500);
-                } else {
-                    showAlert(result.message, 'error');
+            <!-- FORM LOGIN -->
+            <form id="form-login-box" onsubmit="handleStudentLogin(event)" class="space-y-4 text-left">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Nomor Induk Siswa Nasional (NISN)</label>
+                    <input type="text" id="login-nisn" required placeholder="Contoh: 0107695680" class="w-full bg-dark-bg border border-dark-border rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-orange-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Password</label>
+                    <input type="password" id="login-password" required placeholder="Masukkan password kamu" class="w-full bg-dark-bg border border-dark-border rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-orange-500">
+                </div>
+                <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 rounded-xl text-sm transition shadow-lg shadow-orange-500/20">
+                    Masuk ke Kelas
+                </button>
+            </form>
+
+            <!-- FORM REGISTER -->
+            <form id="form-register-box" onsubmit="handleStudentRegister(event)" class="space-y-3 text-left hidden">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Nama Lengkap</label>
+                    <input type="text" id="reg-name" required placeholder="Nama lengkap kamu" class="w-full bg-dark-bg border border-dark-border rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-orange-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">NISN</label>
+                    <input type="text" id="reg-nisn" required placeholder="Nomor NISN" class="w-full bg-dark-bg border border-dark-border rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-orange-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Email Aktif</label>
+                    <input type="email" id="reg-email" required placeholder="email@gmail.com" class="w-full bg-dark-bg border border-dark-border rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-orange-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Password Baru</label>
+                    <input type="password" id="reg-password" required placeholder="Buat password rahasia" class="w-full bg-dark-bg border border-dark-border rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-orange-500">
+                </div>
+                <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2.5 rounded-xl text-sm transition shadow-lg shadow-orange-500/20 mt-2">
+                    Daftar Sekarang
+                </button>
+            </form>
+            
+            <div id="auth-alert" class="text-xs text-center mt-2 hidden"></div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 space-y-2 pointer-events-none"></div>
+
+    <!-- SIDEBAR SISWA -->
+    <aside class="w-64 bg-dark-card border-r border-dark-border flex flex-col justify-between hidden md:flex z-10">
+        <div>
+            <div class="p-6 flex items-center space-x-3 border-b border-dark-border">
+                <div class="bg-orange-500 p-2.5 rounded-xl text-white shadow-lg shadow-orange-500/30">
+                    <i class="fa-solid fa-graduation-cap text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg tracking-wide">Learnova</h1>
+                    <span class="text-xs text-orange-400 font-medium">Portal Siswa TKJ</span>
+                </div>
+            </div>
+            <nav class="p-4 space-y-1.5">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium bg-orange-500 text-white shadow-lg shadow-orange-500/20 transition">
+                    <i class="fa-solid fa-chart-pie w-5"></i><span>Dashboard Siswa</span>
+                </button>
+                <button onclick="switchTab('materials')" id="nav-materials" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition">
+                    <i class="fa-solid fa-book-open w-5"></i><span>Materi & Tugas</span>
+                </button>
+                <button onclick="switchTab('quiz')" id="nav-quiz" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition">
+                    <i class="fa-solid fa-brain w-5"></i><span>Kuis Kelas</span>
+                </button>
+                <button onclick="switchTab('exam')" id="nav-exam" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition">
+                    <i class="fa-solid fa-file-lines w-5"></i><span>Ujian / UTS</span>
+                </button>
+                <button onclick="switchTab('announcements')" id="nav-announcements" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition">
+                    <i class="fa-solid fa-bullhorn w-5"></i><span>Pengumuman</span>
+                </button>
+            </nav>
+        </div>
+        <div class="p-4 border-t border-dark-border flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div id="user-avatar-initials" class="w-10 h-10 rounded-full bg-orange-500/20 text-orange-400 flex items-center font-bold justify-center border border-orange-500/30">SF</div>
+                <div class="overflow-hidden">
+                    <h4 id="student-name-sidebar" class="text-sm font-semibold truncate">Siswa TKJ</h4>
+                    <span id="student-nisn-sidebar" class="text-xs text-slate-400 truncate">NISN: -</span>
+                </div>
+            </div>
+            <button onclick="logoutStudent()" class="text-slate-400 hover:text-rose-400 transition" title="Keluar Kelas"><i class="fa-solid fa-right-from-bracket text-base"></i></button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT SISWA -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+        <header class="bg-dark-card border-b border-dark-border px-8 py-4 flex items-center justify-between sticky top-0 z-25">
+            <div>
+                <h2 class="text-xl font-bold tracking-tight">Dashboard Belajar</h2>
+                <p class="text-xs text-slate-400">Selamat belajar dan kerjakan tugasmu tepat waktu!</p>
+            </div>
+            <button onclick="logoutStudent()" class="text-xs px-3 py-1.5 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-xl">Keluar</button>
+        </header>
+
+        <main class="p-8 space-y-8 flex-1">
+            <!-- TAB DASHBOARD -->
+            <section id="tab-dashboard" class="tab-content space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-dark-card border border-dark-border p-6 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Status Kehadiran Hari Ini</p>
+                            <h3 id="stat-attendance-status" class="text-2xl font-bold mt-1 text-amber-400">Belum Absen</h3>
+                            <span class="text-xs text-slate-400 mt-2 inline-block">Silakan lakukan check-in kehadiran</span>
+                        </div>
+                        <button onclick="doAttendance()" class="px-5 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-xl text-sm transition shadow-lg shadow-emerald-500/20 flex items-center space-x-2">
+                            <i class="fa-solid fa-clipboard-user text-lg"></i>
+                            <span>Check-in Hadir</span>
+                        </button>
+                    </div>
+
+                    <div class="bg-dark-card border border-dark-border p-6 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Jurusan / Kelas</p>
+                            <h3 class="text-xl font-bold mt-1 text-orange-400">Teknik Komputer & Jaringan</h3>
+                            <span class="text-xs text-slate-400 mt-2 inline-block">SMKN 7 Jakarta</span>
+                        </div>
+                        <div class="bg-orange-500/10 text-orange-400 p-4 rounded-xl border border-orange-500/20">
+                            <i class="fa-solid fa-network-wired text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-dark-card border border-dark-border p-6 rounded-2xl space-y-4">
+                    <h3 class="font-bold text-lg text-slate-100 flex items-center">
+                        <i class="fa-solid fa-bullhorn text-orange-400 mr-2"></i>Pengumuman Guru / Kelas
+                    </h3>
+                    <div id="student-announcements" class="space-y-3">
+                        <p class="text-xs text-slate-500 italic">Memuat pengumuman...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB MATERI & TUGAS -->
+            <section id="tab-materials" class="tab-content space-y-6 hidden">
+                <div>
+                    <h3 class="font-bold text-lg mb-1">Materi & Tugas Praktikum</h3>
+                    <p class="text-xs text-slate-400">Pelajari modul dan kumpulkan tugas sebelum deadline berakhir.</p>
+                </div>
+                <div id="student-material-list" class="space-y-4"></div>
+            </section>
+
+            <!-- TAB KUIS -->
+            <section id="tab-quiz" class="tab-content space-y-6 hidden">
+                <div>
+                    <h3 class="font-bold text-lg mb-1">Daftar Kuis Pembelajaran</h3>
+                    <p class="text-xs text-slate-400">Kerjakan kuis pilihan ganda atau esai sesuai waktu yang ditentukan.</p>
+                </div>
+                <div id="student-quiz-list" class="space-y-4"></div>
+            </section>
+
+            <!-- TAB UJIAN -->
+            <section id="tab-exam" class="tab-content space-y-6 hidden">
+                <div>
+                    <h3 class="font-bold text-lg mb-1">Ujian Tengah / Akhir Semester</h3>
+                    <p class="text-xs text-slate-400">Lembar soal ujian resmi kelas TKJ.</p>
+                </div>
+                <div id="student-exam-list" class="space-y-4"></div>
+            </section>
+
+            <!-- TAB PENGUMUMAN -->
+            <section id="tab-announcements" class="tab-content space-y-6 hidden">
+                <div>
+                    <h3 class="font-bold text-lg mb-1">Semua Pengumuman Kelas</h3>
+                    <p class="text-xs text-slate-400">Informasi penting dari guru pengajar.</p>
+                </div>
+                <div id="student-announcements-tab" class="space-y-4"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Script logika Auth & Navigasi -->
+    <script>
+        // Cek sesi login saat halaman dimuat
+        window.addEventListener('DOMContentLoaded', () => {
+            const session = localStorage.getItem('studentSession');
+            if (session) {
+                const student = JSON.parse(session);
+                document.getElementById('login-container').classList.add('hidden');
+                document.getElementById('student-name-sidebar').textContent = student.name;
+                document.getElementById('student-nisn-sidebar').textContent = 'NISN: ' + student.nisn;
+                if(student.name) {
+                    const initials = student.name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+                    document.getElementById('user-avatar-initials').textContent = initials;
                 }
-            } catch (err) {
-                showAlert('Gagal terhubung ke server.', 'error');
+            } else {
+                document.getElementById('login-container').classList.remove('hidden');
             }
         });
 
-        // Login Handler -> Arahkan ke dashboard.html setelah berhasil
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        function switchAuthTab(type) {
+            const loginBox = document.getElementById('form-login-box');
+            const regBox = document.getElementById('form-register-box');
+            const btnLogin = document.getElementById('tab-btn-login');
+            const regBtn = document.getElementById('tab-btn-register');
+            
+            if(type === 'login') {
+                loginBox.classList.remove('hidden');
+                regBox.classList.add('hidden');
+                btnLogin.className = "flex-1 pb-2 font-bold text-sm text-orange-500 border-b-2 border-orange-500";
+                regBtn.className = "flex-1 pb-2 font-semibold text-sm text-slate-400";
+            } else {
+                loginBox.classList.add('hidden');
+                regBox.classList.remove('hidden');
+                regBtn.className = "flex-1 pb-2 font-bold text-sm text-orange-500 border-b-2 border-orange-500";
+                btnLogin.className = "flex-1 pb-2 font-semibold text-sm text-slate-400";
+            }
+        }
+
+        // Handle Login Siswa via API Backend Bcrypt
+        async function handleStudentLogin(e) {
             e.preventDefault();
-            const nisn = document.getElementById('loginNisn').value;
-            const password = document.getElementById('loginPassword').value;
+            const nisn = document.getElementById('login-nisn').value;
+            const password = document.getElementById('login-password').value;
+            const alertBox = document.getElementById('auth-alert');
 
             try {
                 const res = await fetch('/api/siswa/login', {
@@ -223,14 +270,73 @@
 
                 if (result.success) {
                     localStorage.setItem('studentSession', JSON.stringify(result.student));
-                    window.location.href = 'dashboard.html'; // Masuk ke dashboard lengkap siswa
+                    window.location.reload();
                 } else {
-                    showAlert(result.message, 'error');
+                    alertBox.textContent = result.message;
+                    alertBox.className = "text-xs text-center mt-2 text-rose-400 font-medium";
+                    alertBox.classList.remove('hidden');
                 }
             } catch (err) {
-                showAlert('Gagal terhubung ke server.', 'error');
+                alertBox.textContent = "Gagal terhubung ke server.";
+                alertBox.className = "text-xs text-center mt-2 text-rose-400 font-medium";
+                alertBox.classList.remove('hidden');
             }
-        });
+        }
+
+        // Handle Register Siswa Baru
+        async function handleStudentRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value;
+            const nisn = document.getElementById('reg-nisn').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            const alertBox = document.getElementById('auth-alert');
+
+            try {
+                const res = await fetch('/api/siswa/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, nisn, email, password })
+                });
+                const result = await res.json();
+
+                if (result.success) {
+                    alertBox.textContent = result.message;
+                    alertBox.className = "text-xs text-center mt-2 text-emerald-400 font-medium";
+                    alertBox.classList.remove('hidden');
+                    setTimeout(() => switchAuthTab('login'), 1500);
+                } else {
+                    alertBox.textContent = result.message;
+                    alertBox.className = "text-xs text-center mt-2 text-rose-400 font-medium";
+                    alertBox.classList.remove('hidden');
+                }
+            } catch (err) {
+                alertBox.textContent = "Gagal terhubung ke server.";
+                alertBox.className = "text-xs text-center mt-2 text-rose-400 font-medium";
+                alertBox.classList.remove('hidden');
+            }
+        }
+
+        function logoutStudent() {
+            localStorage.removeItem('studentSession');
+            window.location.reload();
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(el => {
+                el.className = "nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition";
+            });
+            
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+            document.getElementById('nav-' + tabId).className = "nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium bg-orange-500 text-white shadow-lg shadow-orange-500/20 transition";
+        }
+
+        function doAttendance() {
+            alert("Absensi berhasil dicatat untuk hari ini!");
+            document.getElementById('stat-attendance-status').textContent = "Hadir";
+            document.getElementById('stat-attendance-status').className = "text-2xl font-bold mt-1 text-emerald-400";
+        }
     </script>
 </body>
 </html>
