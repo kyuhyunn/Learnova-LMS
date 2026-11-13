@@ -215,20 +215,21 @@
         </main>
     </div>
 
-    <!-- Script logika Auth & Navigasi -->
+    <!-- Script logika Auth & Navigasi Terintegrasi -->
     <script>
+        let currentStudent = null;
+
         // Cek sesi login saat halaman dimuat
         window.addEventListener('DOMContentLoaded', () => {
-            const session = localStorage.getItem('studentSession');
-            if (session) {
-                const student = JSON.parse(session);
+            const savedSession = localStorage.getItem('student_session');
+            if (savedSession) {
+                currentStudent = JSON.parse(savedSession);
                 document.getElementById('login-container').classList.add('hidden');
-                document.getElementById('student-name-sidebar').textContent = student.name;
-                document.getElementById('student-nisn-sidebar').textContent = 'NISN: ' + student.nisn;
-                if(student.name) {
-                    const initials = student.name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
-                    document.getElementById('user-avatar-initials').textContent = initials;
-                }
+                updateStudentUI();
+                loadStudentData();
+                
+                // Sinkronisasi otomatis setiap 5 detik agar data dari admin langsung masuk
+                setInterval(loadStudentData, 5000);
             } else {
                 document.getElementById('login-container').classList.remove('hidden');
             }
@@ -269,7 +270,8 @@
                 const result = await res.json();
 
                 if (result.success) {
-                    localStorage.setItem('studentSession', JSON.stringify(result.student));
+                    currentStudent = result.student;
+                    localStorage.setItem('student_session', JSON.stringify(currentStudent));
                     window.location.reload();
                 } else {
                     alertBox.textContent = result.message;
@@ -317,25 +319,166 @@
             }
         }
 
+        function updateStudentUI() {
+            if (!currentStudent) return;
+            document.getElementById('student-name-sidebar').textContent = currentStudent.name;
+            document.getElementById('student-nisn-sidebar').textContent = 'NISN: ' + currentStudent.nisn;
+            
+            const initials = currentStudent.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            document.getElementById('user-avatar-initials').textContent = initials;
+
+            const attStatus = document.getElementById('stat-attendance-status');
+            if (attStatus) {
+                attStatus.innerText = currentStudent.attendance || 'Belum Absen';
+                attStatus.className = currentStudent.attendance === 'Hadir' ? 'text-2xl font-bold mt-1 text-emerald-400' : 'text-2xl font-bold mt-1 text-amber-400';
+            }
+        }
+
+        // Load Data & Sinkronisasi Real-time dengan Admin
+        async function loadStudentData() {
+            if (!currentStudent) return;
+            try {
+                const response = await fetch('/api/data');
+                const data = await response.json();
+                
+                // Sinkronisasi data siswa terbaru dari server (misal status absensi di-reset admin)
+                const latestStudent = data.students.find(s => s.id === currentStudent.id);
+                if (latestStudent) {
+                    currentStudent = latestStudent;
+                    localStorage.setItem('student_session', JSON.stringify(currentStudent));
+                    updateStudentUI();
+                }
+
+                // Render Pengumuman dari Panel Admin
+                const announcementContainer = document.getElementById('student-announcements');
+                const announcementTabContainer = document.getElementById('student-announcements-tab');
+                
+                const renderAnnouncements = (container) => {
+                    if (!container) return;
+                    container.innerHTML = '';
+                    if (data.announcements.length === 0) {
+                        container.innerHTML = '<p class="text-xs text-slate-500 italic">Tidak ada pengumuman saat ini.</p>';
+                    } else {
+                        data.announcements.forEach(a => {
+                            container.innerHTML += `
+                                <div class="bg-dark-bg p-4 rounded-xl border border-dark-border space-y-2">
+                                    <div class="flex items-center space-x-2 text-xs text-orange-400 font-semibold">
+                                        <i class="fa-solid fa-bullhorn"></i>
+                                        <span>${a.title}</span>
+                                        <span class="text-slate-500 font-normal">(${a.date})</span>
+                                    </div>
+                                    <p class="text-sm text-slate-200">${a.content}</p>
+                                </div>
+                            `;
+                        });
+                    }
+                };
+
+                renderAnnouncements(announcementContainer);
+                renderAnnouncements(announcementTabContainer);
+
+                // Render Materi, Kuis, & Ujian
+                const materialContainer = document.getElementById('student-material-list');
+                const quizContainer = document.getElementById('student-quiz-list');
+                const examContainer = document.getElementById('student-exam-list');
+
+                if (data.materials) {
+                    if (materialContainer) materialContainer.innerHTML = '';
+                    if (quizContainer) quizContainer.innerHTML = '';
+                    if (examContainer) examContainer.innerHTML = '';
+
+                    data.materials.forEach(m => {
+                        const now = new Date();
+                        const deadlineDate = m.deadline ? new Date(m.deadline) : null;
+                        const isExpired = deadlineDate && now > deadlineDate;
+                        const deadlineFormatted = deadlineDate ? deadlineDate.toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) : 'Tanpa Batas Waktu';
+                        
+                        const btnStyle = isExpired ? 'bg-slate-700 text-slate-400 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-600 text-white shadow-lg shadow-orange-500/20';
+                        const btnAction = isExpired ? '' : `onclick="submitTask(${m.id})"`;
+                        const btnLabel = isExpired ? '<i class="fa-solid fa-ban mr-1.5"></i> Waktu Habis' : `<i class="fa-solid fa-paper-plane mr-1.5"></i> ${m.category === 'Kuis' ? 'Kirim Kuis' : m.category === 'Ujian' ? 'Kirim Ujian' : 'Kumpulkan Tugas'}`;
+
+                        const cardHTML = `
+                            <div class="bg-dark-bg p-5 rounded-2xl border border-dark-border space-y-3">
+                                <div class="flex justify-between items-center">
+                                    <h4 class="font-bold text-slate-100 text-base">${m.title}</h4>
+                                    <span class="text-xs px-2.5 py-1 bg-orange-500/10 text-orange-400 rounded-lg border border-orange-500/20 font-medium">${m.category}</span>
+                                </div>
+                                <p class="text-xs text-slate-300 leading-relaxed">${m.desc}</p>
+                                <span class="text-xs ${isExpired ? 'text-rose-400 font-semibold' : 'text-amber-400'} block">
+                                    <i class="fa-regular fa-clock mr-1"></i> Deadline: ${deadlineFormatted}
+                                </span>
+                                <button ${btnAction} class="px-4 py-2 rounded-xl text-xs font-medium transition ${btnStyle}">${btnLabel}</button>
+                            </div>
+                        `;
+
+                        if (m.category === 'Kuis' && quizContainer) quizContainer.innerHTML += cardHTML;
+                        else if (m.category === 'Ujian' && examContainer) examContainer.innerHTML += cardHTML;
+                        else if (materialContainer) materialContainer.innerHTML += cardHTML;
+                    });
+                }
+            } catch (err) {
+                console.error('Gagal sinkronisasi data:', err);
+            }
+        }
+
+        // Kirim Absensi (Langsung Masuk ke Panel Admin)
+        async function doAttendance() {
+            if (!currentStudent) return;
+            try {
+                const response = await fetch('/api/siswa/attendance', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ studentId: currentStudent.id })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    currentStudent.attendance = 'Hadir';
+                    localStorage.setItem('student_session', JSON.stringify(currentStudent));
+                    updateStudentUI();
+                    alert('Absensi berhasil dicatat: Hadir!');
+                } else {
+                    alert(result.message);
+                }
+            } catch (err) {
+                alert('Gagal melakukan absensi.');
+            }
+        }
+
+        // Kumpul Tugas / Kuis / Ujian dengan Validasi Deadline
+        async function submitTask(materialId) {
+            if (!currentStudent) return;
+            try {
+                const response = await fetch('/api/siswa/submit-task', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ studentId: currentStudent.id, materialId })
+                });
+                const result = await response.json();
+                alert(result.message);
+            } catch (err) {
+                alert('Gagal mengirim tugas.');
+            }
+        }
+
         function logoutStudent() {
-            localStorage.removeItem('studentSession');
+            localStorage.removeItem('student_session');
             window.location.reload();
         }
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.nav-btn').forEach(el => {
-                el.className = "nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition";
-            });
-            
-            document.getElementById('tab-' + tabId).classList.remove('hidden');
-            document.getElementById('nav-' + tabId).className = "nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium bg-orange-500 text-white shadow-lg shadow-orange-500/20 transition";
-        }
+            const target = document.getElementById(`tab-${tabId}`);
+            if (target) target.classList.remove('hidden');
 
-        function doAttendance() {
-            alert("Absensi berhasil dicatat untuk hari ini!");
-            document.getElementById('stat-attendance-status').textContent = "Hadir";
-            document.getElementById('stat-attendance-status').className = "text-2xl font-bold mt-1 text-emerald-400";
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-orange-500', 'text-white', 'shadow-lg', 'shadow-orange-500/20');
+                btn.classList.add('text-slate-400');
+            });
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) {
+                activeNav.classList.add('bg-orange-500', 'text-white', 'shadow-lg', 'shadow-orange-500/20');
+                activeNav.classList.remove('text-slate-400');
+            }
         }
     </script>
 </body>
