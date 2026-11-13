@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const bcrypt = require('bcrypt'); // Poin 7: Enkripsi password aman
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -9,14 +10,14 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Menyediakan folder statis untuk Admin & Siswa
+// Menyediakan folder statis untuk Admin & Siswa[cite: 2]
 app.use('/admin', express.static(path.join(__dirname, 'public/admin')));
 app.use('/siswa', express.static(path.join(__dirname, 'public/siswa')));
 
-// Path file database permanen lokal
+// Path file database permanen lokal[cite: 2]
 const dbFile = path.join(__dirname, 'database.json');
 
-// Data Default jika file database.json belum ada
+// Data Default jika file database.json belum ada[cite: 2]
 let defaultData = {
     students: [
         { id: 1, name: 'Fadhli', nisn: '0107695680', email: 'muamad.fadhli@gmail.com', status: 'Aktif', tugas: 90, kuis: 85, ujian: 88, attendance: 'Hadir' },
@@ -45,7 +46,7 @@ let defaultData = {
     ]
 };
 
-// Memuat database dari file JSON (Penyimpanan Permanen)
+// Memuat database dari file JSON (Penyimpanan Permanen)[cite: 2]
 let dbData = defaultData;
 if (fs.existsSync(dbFile)) {
     try {
@@ -61,14 +62,14 @@ if (fs.existsSync(dbFile)) {
     fs.writeFileSync(dbFile, JSON.stringify(defaultData, null, 2));
 }
 
-// Fungsi helper untuk menyimpan perubahan ke file JSON permanen
+// Fungsi helper untuk menyimpan perubahan ke file JSON permanen[cite: 2]
 function saveDB() {
     fs.writeFileSync(dbFile, JSON.stringify(dbData, null, 2));
 }
 
 // --- API ENDPOINTS ---
 
-// 1. Ambil semua data
+// 1. Ambil semua data[cite: 2]
 app.get('/api/data', (req, res) => {
     res.json({
         students: dbData.students,
@@ -77,7 +78,7 @@ app.get('/api/data', (req, res) => {
     });
 });
 
-// 2. API: Login Admin (Password: Fadhli2010)
+// 2. API: Login Admin (Password: Fadhli2010)[cite: 2]
 app.post('/api/admin/login', (req, res) => {
     const { password } = req.body;
     if (password === 'Fadhli2010') {
@@ -87,7 +88,7 @@ app.post('/api/admin/login', (req, res) => {
     }
 });
 
-// 3. API: Tambah Siswa Baru
+// 3. API: Tambah Siswa Baru oleh Admin[cite: 2]
 app.post('/api/students', (req, res) => {
     const newStudent = req.body;
     dbData.students.push(newStudent);
@@ -95,7 +96,7 @@ app.post('/api/students', (req, res) => {
     res.json({ success: true, message: 'Siswa berhasil disimpan secara permanen!', students: dbData.students });
 });
 
-// 4. API: Edit Data Siswa
+// 4. API: Edit Data Siswa[cite: 2]
 app.put('/api/students/:id', (req, res) => {
     const studentId = Number(req.params.id);
     const { name, nisn, email } = req.body;
@@ -112,7 +113,7 @@ app.put('/api/students/:id', (req, res) => {
     }
 });
 
-// 5. API: Hapus Siswa
+// 5. API: Hapus Siswa[cite: 2]
 app.delete('/api/students/:id', (req, res) => {
     const studentId = Number(req.params.id);
     const initialLength = dbData.students.length;
@@ -126,7 +127,7 @@ app.delete('/api/students/:id', (req, res) => {
     }
 });
 
-// 6. API: Publikasi Materi / Tugas / Kuis / Ujian Baru
+// 6. API: Publikasi Materi / Tugas / Kuis / Ujian Baru[cite: 2]
 app.post('/api/materials', (req, res) => {
     const newMaterial = req.body;
     dbData.materials.push(newMaterial);
@@ -134,7 +135,7 @@ app.post('/api/materials', (req, res) => {
     res.json({ success: true, message: 'Materi berhasil dipublikasikan!', materials: dbData.materials });
 });
 
-// 7. API: Hapus Materi / Tugas Berdasarkan ID
+// 7. API: Hapus Materi / Tugas Berdasarkan ID[cite: 2]
 app.delete('/api/materials/:id', (req, res) => {
     const materialId = Number(req.params.id);
     const initialLength = dbData.materials.length;
@@ -148,7 +149,7 @@ app.delete('/api/materials/:id', (req, res) => {
     }
 });
 
-// 8. API: Kirim Pengumuman Kelas
+// 8. API: Kirim Pengumuman Kelas[cite: 2]
 app.post('/api/announcements', (req, res) => {
     const { title, content } = req.body;
     if (!dbData.announcements) {
@@ -165,7 +166,7 @@ app.post('/api/announcements', (req, res) => {
     res.json({ success: true, message: 'Pengumuman berhasil dikirim!', announcements: dbData.announcements });
 });
 
-// 9. API: Hapus Pengumuman Berdasarkan ID
+// 9. API: Hapus Pengumuman Berdasarkan ID[cite: 2]
 app.delete('/api/announcements/:id', (req, res) => {
     const annId = Number(req.params.id);
     if (!dbData.announcements) {
@@ -183,18 +184,70 @@ app.delete('/api/announcements/:id', (req, res) => {
     }
 });
 
-// 10. API: Login Siswa berdasarkan NISN
-app.post('/api/siswa/login', (req, res) => {
-    const { nisn } = req.body;
-    const student = dbData.students.find(s => s.nisn === nisn);
-    if (student) {
-        res.json({ success: true, student });
-    } else {
-        res.status(401).json({ success: false, message: 'NISN tidak terdaftar di database!' });
+// 10. API: Registrasi Siswa Mandiri (Poin 6 & 7)
+app.post('/api/siswa/register', async (req, res) => {
+    try {
+        const { name, nisn, email, password } = req.body;
+
+        const existingStudent = dbData.students.find(s => s.nisn === nisn);
+        if (existingStudent) {
+            return res.status(400).json({ success: false, message: 'NISN sudah terdaftar di database!' });
+        }
+
+        // Enkripsi password menggunakan bcrypt
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const newStudent = {
+            id: dbData.students.length > 0 ? Math.max(...dbData.students.map(s => s.id)) + 1 : 1,
+            name,
+            nisn,
+            email: email || `${nisn}@student.nova`,
+            password: hashedPassword, // Simpan password terhash
+            status: 'Aktif',
+            tugas: 0,
+            kuis: 0,
+            ujian: 0,
+            attendance: 'Belum Absen'
+        };
+
+        dbData.students.push(newStudent);
+        saveDB();
+        res.json({ success: true, message: 'Registrasi akun berhasil! Silakan login.' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Terjadi kesalahan pada server.' });
     }
 });
 
-// 11. API: Siswa Absensi Check-in
+// 11. API: Login Siswa dengan Verifikasi Password (Poin 7)
+app.post('/api/siswa/login', async (req, res) => {
+    try {
+        const { nisn, password } = req.body;
+        const student = dbData.students.find(s => s.nisn === nisn);
+
+        if (!student) {
+            return res.status(401).json({ success: false, message: 'NISN tidak terdaftar di database!' });
+        }
+
+        // Jika siswa dari data default lama belum memiliki password
+        if (!student.password) {
+            return res.json({ success: true, student, message: 'Login berhasil!' });
+        }
+
+        // Bandingkan password input dengan hash di database
+        const isMatch = await bcrypt.compare(password, student.password);
+        if (!isMatch) {
+            return res.status(401).json({ success: false, message: 'Password salah!' });
+        }
+
+        res.json({ success: true, student, message: 'Login berhasil!' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Terjadi kesalahan pada server.' });
+    }
+});
+
+// 12. API: Siswa Absensi Check-in[cite: 2]
 app.post('/api/siswa/attendance', (req, res) => {
     const { studentId } = req.body;
     const student = dbData.students.find(s => s.id === Number(studentId));
@@ -207,7 +260,7 @@ app.post('/api/siswa/attendance', (req, res) => {
     }
 });
 
-// 12. API: Reset Absensi Semua Siswa (Fitur Baru)
+// 13. API: Reset Absensi Semua Siswa[cite: 2]
 app.post('/api/admin/reset-attendance', (req, res) => {
     dbData.students.forEach(s => {
         s.attendance = 'Belum Absen';
@@ -216,7 +269,7 @@ app.post('/api/admin/reset-attendance', (req, res) => {
     res.json({ success: true, message: 'Absensi berhasil di-reset!', students: dbData.students });
 });
 
-// 13. API: Siswa Kumpul Tugas / Kuis / Ujian dengan Validasi Deadline
+// 14. API: Siswa Kumpul Tugas / Kuis / Ujian dengan Validasi Deadline[cite: 2]
 app.post('/api/siswa/submit-task', (req, res) => {
     const { studentId, materialId } = req.body;
     const student = dbData.students.find(s => s.id === Number(studentId));
