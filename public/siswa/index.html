@@ -9,7 +9,7 @@
             --bg-color: #0d1117;
             --card-bg: rgba(22, 27, 34, 0.9);
             --text-color: #c9d1d9;
-            --accent-color: #f97316; /* Menyesuaikan warna oranye Learnova */
+            --accent-color: #f97316;
             --accent-hover: #ea580c;
             --border-color: #30363d;
         }
@@ -26,18 +26,18 @@
             align-items: center;
         }
 
-        .auth-card {
+        .auth-card, .dashboard-card {
             background: var(--card-bg);
             backdrop-filter: blur(10px);
             border: 1px solid var(--border-color);
             padding: 30px;
             border-radius: 12px;
             width: 100%;
-            max-width: 420px;
+            max-width: 450px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
         }
 
-        .auth-card h2 {
+        .auth-card h2, .dashboard-card h2 {
             text-align: center;
             margin-bottom: 20px;
             color: #ffffff;
@@ -93,7 +93,7 @@
             border-color: var(--accent-color);
         }
 
-        .btn-submit {
+        .btn-submit, .btn-logout {
             width: 100%;
             padding: 11px;
             background-color: var(--accent-color);
@@ -106,8 +106,15 @@
             margin-top: 10px;
         }
 
-        .btn-submit:hover {
+        .btn-submit:hover, .btn-logout:hover {
             background-color: var(--accent-hover);
+        }
+
+        .btn-logout {
+            background-color: #da3633;
+        }
+        .btn-logout:hover {
+            background-color: #b31d18;
         }
 
         .form-section {
@@ -128,14 +135,26 @@
         }
         .alert-success { background: rgba(46, 160, 67, 0.15); color: #3fb950; border: 1px solid #2ea043; }
         .alert-error { background: rgba(248, 81, 73, 0.15); color: #f85149; border: 1px solid #da3633; }
+
+        .student-info {
+            background: #161b22;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+        .student-info p {
+            margin: 8px 0;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
 
-    <div class="auth-card">
+    <!-- KARTU LOGIN / REGISTER (Tampil kalau belum login) -->
+    <div id="authContainer" class="auth-card" style="display: none;">
         <h2>Learnova Portal Siswa</h2>
         
-        <!-- Tab Navigasi Login / Register -->
         <div class="tab-menu">
             <button class="tab-btn active" onclick="switchTab('login')">Masuk (Login)</button>
             <button class="tab-btn" onclick="switchTab('register')">Daftar Akun</button>
@@ -156,7 +175,7 @@
             </form>
         </div>
 
-        <!-- FORM REGISTER (Pendaftaran Mandiri) -->
+        <!-- FORM REGISTER -->
         <div id="registerSection" class="form-section">
             <form id="registerForm">
                 <div class="form-group">
@@ -182,7 +201,39 @@
         <div id="alertBox" class="alert-msg"></div>
     </div>
 
+    <!-- KARTU DASHBOARD SISWA (Tampil otomatis setelah berhasil login) -->
+    <div id="dashboardContainer" class="dashboard-card" style="display: none;">
+        <h2>Dashboard Kelas Siswa</h2>
+        <div class="student-info">
+            <p><strong>Nama:</strong> <span id="studentName">-</span></p>
+            <p><strong>NISN:</strong> <span id="studentNisn">-</span></p>
+            <p><strong>Status:</strong> <span id="studentStatus" style="color: #3fb950;">Aktif</span></p>
+            <p><strong>Kehadiran:</strong> <span id="studentAttendance">-</span></p>
+        </div>
+        <button onclick="handleLogout()" class="btn-logout">Keluar (Logout)</button>
+    </div>
+
     <script>
+        // Cek status login saat halaman dibuka
+        window.addEventListener('DOMContentLoaded', () => {
+            const session = localStorage.getItem('studentSession');
+            if (session) {
+                const student = JSON.parse(session);
+                // Tampilkan dashboard, sembunyikan form login
+                document.getElementById('authContainer').style.display = 'none';
+                document.getElementById('dashboardContainer').style.display = 'block';
+                
+                // Isi data ke dashboard
+                document.getElementById('studentName').textContent = student.name;
+                document.getElementById('studentNisn').textContent = student.nisn;
+                document.getElementById('studentAttendance').textContent = student.attendance || 'Belum Absen';
+            } else {
+                // Tampilkan form login, sembunyikan dashboard
+                document.getElementById('authContainer').style.display = 'block';
+                document.getElementById('dashboardContainer').style.display = 'none';
+            }
+        });
+
         function switchTab(tab) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.form-section').forEach(sec => sec.classList.remove('active'));
@@ -246,12 +297,9 @@
                 const result = await res.json();
 
                 if (result.success) {
-                    showAlert('Login berhasil! Masuk ke kelas...', 'success');
-                    // Simpan data siswa ke localStorage biar dashboard bisa akses
+                    // Simpan sesi ke localStorage
                     localStorage.setItem('studentSession', JSON.stringify(result.student));
-                    setTimeout(() => {
-                        window.location.href = 'index.html'; // Sesuaikan file dashboard siswa kamu
-                    }, 1000);
+                    window.location.reload(); // Refresh halaman untuk memuat tampilan dashboard
                 } else {
                     showAlert(result.message, 'error');
                 }
@@ -259,6 +307,12 @@
                 showAlert('Gagal terhubung ke server.', 'error');
             }
         });
+
+        // Handle Logout
+        function handleLogout() {
+            localStorage.removeItem('studentSession');
+            window.location.reload();
+        }
     </script>
 </body>
 </html>
