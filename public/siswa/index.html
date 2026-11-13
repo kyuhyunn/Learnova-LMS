@@ -250,7 +250,7 @@
                     // Simpan data siswa ke localStorage biar dashboard bisa akses
                     localStorage.setItem('studentSession', JSON.stringify(result.student));
                     setTimeout(() => {
-                        window.location.href = 'dashboard.html'; // Sesuaikan file dashboard siswa kamu
+                        window.location.href = 'index.html'; // Sesuaikan file dashboard siswa kamu
                     }, 1000);
                 } else {
                     showAlert(result.message, 'error');
