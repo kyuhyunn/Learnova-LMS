@@ -13,7 +13,6 @@
             --accent-hover: #ea580c;
             --border-color: #30363d;
         }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
@@ -25,30 +24,26 @@
             justify-content: center;
             align-items: center;
         }
-
-        .auth-card, .dashboard-card {
+        .auth-card {
             background: var(--card-bg);
             backdrop-filter: blur(10px);
             border: 1px solid var(--border-color);
             padding: 30px;
             border-radius: 12px;
             width: 100%;
-            max-width: 450px;
+            max-width: 420px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
         }
-
-        .auth-card h2, .dashboard-card h2 {
+        .auth-card h2 {
             text-align: center;
             margin-bottom: 20px;
             color: #ffffff;
         }
-
         .tab-menu {
             display: flex;
             margin-bottom: 20px;
             border-bottom: 1px solid var(--border-color);
         }
-
         .tab-btn {
             flex: 1;
             background: none;
@@ -60,23 +55,19 @@
             font-weight: 600;
             transition: 0.3s;
         }
-
         .tab-btn.active {
             color: var(--accent-color);
             border-bottom: 2px solid var(--accent-color);
         }
-
         .form-group {
             margin-bottom: 15px;
         }
-
         .form-group label {
             display: block;
             margin-bottom: 5px;
             font-size: 14px;
             color: #8b949e;
         }
-
         .form-group input {
             width: 100%;
             padding: 10px 12px;
@@ -87,13 +78,11 @@
             font-size: 14px;
             box-sizing: border-box;
         }
-
         .form-group input:focus {
             outline: none;
             border-color: var(--accent-color);
         }
-
-        .btn-submit, .btn-logout {
+        .btn-submit {
             width: 100%;
             padding: 11px;
             background-color: var(--accent-color);
@@ -105,26 +94,11 @@
             transition: 0.2s;
             margin-top: 10px;
         }
-
-        .btn-submit:hover, .btn-logout:hover {
+        .btn-submit:hover {
             background-color: var(--accent-hover);
         }
-
-        .btn-logout {
-            background-color: #da3633;
-        }
-        .btn-logout:hover {
-            background-color: #b31d18;
-        }
-
-        .form-section {
-            display: none;
-        }
-
-        .form-section.active {
-            display: block;
-        }
-
+        .form-section { display: none; }
+        .form-section.active { display: block; }
         .alert-msg {
             margin-top: 15px;
             font-size: 13px;
@@ -135,26 +109,11 @@
         }
         .alert-success { background: rgba(46, 160, 67, 0.15); color: #3fb950; border: 1px solid #2ea043; }
         .alert-error { background: rgba(248, 81, 73, 0.15); color: #f85149; border: 1px solid #da3633; }
-
-        .student-info {
-            background: #161b22;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border-color);
-        }
-        .student-info p {
-            margin: 8px 0;
-            font-size: 14px;
-        }
     </style>
 </head>
 <body>
-
-    <!-- KARTU LOGIN / REGISTER (Tampil kalau belum login) -->
-    <div id="authContainer" class="auth-card" style="display: none;">
+    <div class="auth-card">
         <h2>Learnova Portal Siswa</h2>
-        
         <div class="tab-menu">
             <button class="tab-btn active" onclick="switchTab('login')">Masuk (Login)</button>
             <button class="tab-btn" onclick="switchTab('register')">Daftar Akun</button>
@@ -201,44 +160,11 @@
         <div id="alertBox" class="alert-msg"></div>
     </div>
 
-    <!-- KARTU DASHBOARD SISWA (Tampil otomatis setelah berhasil login) -->
-    <div id="dashboardContainer" class="dashboard-card" style="display: none;">
-        <h2>Dashboard Kelas Siswa</h2>
-        <div class="student-info">
-            <p><strong>Nama:</strong> <span id="studentName">-</span></p>
-            <p><strong>NISN:</strong> <span id="studentNisn">-</span></p>
-            <p><strong>Status:</strong> <span id="studentStatus" style="color: #3fb950;">Aktif</span></p>
-            <p><strong>Kehadiran:</strong> <span id="studentAttendance">-</span></p>
-        </div>
-        <button onclick="handleLogout()" class="btn-logout">Keluar (Logout)</button>
-    </div>
-
     <script>
-        // Cek status login saat halaman dibuka
-        window.addEventListener('DOMContentLoaded', () => {
-            const session = localStorage.getItem('studentSession');
-            if (session) {
-                const student = JSON.parse(session);
-                // Tampilkan dashboard, sembunyikan form login
-                document.getElementById('authContainer').style.display = 'none';
-                document.getElementById('dashboardContainer').style.display = 'block';
-                
-                // Isi data ke dashboard
-                document.getElementById('studentName').textContent = student.name;
-                document.getElementById('studentNisn').textContent = student.nisn;
-                document.getElementById('studentAttendance').textContent = student.attendance || 'Belum Absen';
-            } else {
-                // Tampilkan form login, sembunyikan dashboard
-                document.getElementById('authContainer').style.display = 'block';
-                document.getElementById('dashboardContainer').style.display = 'none';
-            }
-        });
-
         function switchTab(tab) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.form-section').forEach(sec => sec.classList.remove('active'));
             document.getElementById('alertBox').style.display = 'none';
-
             if (tab === 'login') {
                 document.querySelectorAll('.tab-btn')[0].classList.add('active');
                 document.getElementById('loginSection').classList.add('active');
@@ -255,7 +181,7 @@
             alertBox.style.display = 'block';
         }
 
-        // Handle Register
+        // Register Handler
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const name = document.getElementById('regName').value;
@@ -270,7 +196,6 @@
                     body: JSON.stringify({ name, nisn, email, password })
                 });
                 const result = await res.json();
-
                 if (result.success) {
                     showAlert(result.message, 'success');
                     setTimeout(() => switchTab('login'), 1500);
@@ -282,7 +207,7 @@
             }
         });
 
-        // Handle Login
+        // Login Handler -> Arahkan ke dashboard.html setelah berhasil
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const nisn = document.getElementById('loginNisn').value;
@@ -297,9 +222,8 @@
                 const result = await res.json();
 
                 if (result.success) {
-                    // Simpan sesi ke localStorage
                     localStorage.setItem('studentSession', JSON.stringify(result.student));
-                    window.location.reload(); // Refresh halaman untuk memuat tampilan dashboard
+                    window.location.href = 'dashboard.html'; // Masuk ke dashboard lengkap siswa
                 } else {
                     showAlert(result.message, 'error');
                 }
@@ -307,12 +231,6 @@
                 showAlert('Gagal terhubung ke server.', 'error');
             }
         });
-
-        // Handle Logout
-        function handleLogout() {
-            localStorage.removeItem('studentSession');
-            window.location.reload();
-        }
     </script>
 </body>
 </html>
